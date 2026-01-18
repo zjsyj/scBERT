@@ -10,8 +10,19 @@ from functools import reduce
 import numpy as np
 import pandas as pd
 from scipy import sparse
-from sklearn.model_selection import train_test_split, ShuffleSplit, StratifiedShuffleSplit, StratifiedKFold
-from sklearn.metrics import accuracy_score, f1_score, confusion_matrix, precision_recall_fscore_support, classification_report
+from sklearn.model_selection import (
+    train_test_split,
+    ShuffleSplit,
+    StratifiedShuffleSplit,
+    StratifiedKFold,
+)
+from sklearn.metrics import (
+    accuracy_score,
+    f1_score,
+    confusion_matrix,
+    precision_recall_fscore_support,
+    classification_report,
+)
 import torch
 from torch import nn
 from torch.optim import Adam, SGD, AdamW
@@ -23,15 +34,31 @@ from utils import *
 import pickle as pkl
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--bin_num", type=int, default=5, help='Number of bins.')
-parser.add_argument("--gene_num", type=int, default=16906, help='Number of genes.')
-parser.add_argument("--epoch", type=int, default=100, help='Number of epochs.')
-parser.add_argument("--seed", type=int, default=2021, help='Random seed.')
-parser.add_argument("--novel_type", type=bool, default=False, help='Novel cell tpye exists or not.')
-parser.add_argument("--unassign_thres", type=float, default=0.5, help='The confidence score threshold for novel cell type annotation.')
-parser.add_argument("--pos_embed", type=bool, default=True, help='Using Gene2vec encoding or not.')
-parser.add_argument("--data_path", type=str, default='./data/Zheng68K.h5ad', help='Path of data for predicting.')
-parser.add_argument("--model_path", type=str, default='./finetuned.pth', help='Path of finetuned model.')
+parser.add_argument("--bin_num", type=int, default=5, help="Number of bins.")
+parser.add_argument("--gene_num", type=int, default=16906, help="Number of genes.")
+parser.add_argument("--epoch", type=int, default=100, help="Number of epochs.")
+parser.add_argument("--seed", type=int, default=2021, help="Random seed.")
+parser.add_argument(
+    "--novel_type", type=bool, default=False, help="Novel cell tpye exists or not."
+)
+parser.add_argument(
+    "--unassign_thres",
+    type=float,
+    default=0.5,
+    help="The confidence score threshold for novel cell type annotation.",
+)
+parser.add_argument(
+    "--pos_embed", type=bool, default=True, help="Using Gene2vec encoding or not."
+)
+parser.add_argument(
+    "--data_path",
+    type=str,
+    default="./data/Zheng68K.h5ad",
+    help="Path of data for predicting.",
+)
+parser.add_argument(
+    "--model_path", type=str, default="./finetuned.pth", help="Path of finetuned model."
+)
 
 args = parser.parse_args()
 
@@ -46,8 +73,9 @@ POS_EMBED_USING = args.pos_embed
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
+
 class Identity(torch.nn.Module):
-    def __init__(self, dropout = 0., h_dim = 100, out_dim = 10):
+    def __init__(self, dropout=0.0, h_dim=100, out_dim=10):
         super(Identity, self).__init__()
         self.conv1 = nn.Conv2d(1, 1, (1, 200))
         self.act = nn.ReLU()
@@ -60,10 +88,10 @@ class Identity(torch.nn.Module):
         self.fc3 = nn.Linear(in_features=h_dim, out_features=out_dim, bias=True)
 
     def forward(self, x):
-        x = x[:,None,:,:]
+        x = x[:, None, :, :]
         x = self.conv1(x)
         x = self.act(x)
-        x = x.view(x.shape[0],-1)
+        x = x.view(x.shape[0], -1)
         x = self.fc1(x)
         x = self.act1(x)
         x = self.dropout1(x)
@@ -73,11 +101,12 @@ class Identity(torch.nn.Module):
         x = self.fc3(x)
         return x
 
+
 data = sc.read_h5ad(args.data_path)
-#load the label stored during the fine-tune stage
-with open('label_dict', 'rb') as fp:
+# load the label stored during the fine-tune stage
+with open("label_dict", "rb") as fp:
     label_dict = pkl.load(fp)
-with open('label', 'rb') as fp:
+with open("label", "rb") as fp:
     label = pkl.load(fp)
 
 class_num = np.unique(label, return_counts=True)[1].tolist()
@@ -86,19 +115,19 @@ label = torch.from_numpy(label)
 data = data.X
 
 model = PerformerLM(
-    num_tokens = CLASS,
-    dim = 200,
-    depth = 6,
-    max_seq_len = SEQ_LEN,
-    heads = 10,
-    local_attn_heads = 0,
-    g2v_position_emb = True
+    num_tokens=CLASS,
+    dim=200,
+    depth=6,
+    max_seq_len=SEQ_LEN,
+    heads=10,
+    local_attn_heads=0,
+    g2v_position_emb=True,
 )
-model.to_out = Identity(dropout=0., h_dim=128, out_dim=label_dict.shape[0])
+model.to_out = Identity(dropout=0.0, h_dim=128, out_dim=label_dict.shape[0])
 
 path = args.model_path
 ckpt = torch.load(path)
-model.load_state_dict(ckpt['model_state_dict'])
+model.load_state_dict(ckpt["model_state_dict"])
 for param in model.parameters():
     param.requires_grad = False
 model = model.to(device)
@@ -123,5 +152,5 @@ with torch.no_grad():
         pred_finals.append(pred_final)
 pred_list = label_dict[pred_finals].tolist()
 for index in novel_indices:
-    pred_list[index] = 'Unassigned'
+    pred_list[index] = "Unassigned"
 print(pred_list)

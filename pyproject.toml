@@ -20,6 +20,7 @@ dependencies = [
     "einops>=0.6.0",
     "local-attention>=1.11.2", # Added dependency
     "matplotlib >= 3.7",
+    "tqdm"
 ]
 
 [project.optional-dependencies]

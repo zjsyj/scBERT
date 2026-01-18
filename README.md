@@ -1,6 +1,6 @@
 # scBERT
 
-[![python >3.6.8](https://img.shields.io/badge/python-3.6.8-brightgreen)](https://www.python.org/) 
+[![python >3.6.8](https://img.shields.io/badge/python-3.6.8-brightgreen)](https://www.python.org/)
 
 ### scBERT as a Large-scale Pretrained Deep Language Model for Cell Type Annotation of Single-cell RNA-seq Data
 Reliable cell type annotation is a prerequisite for downstream analysis of single-cell RNA sequencing data. Existing annotation algorithms typically suffer from improper handling of batch effect, lack of curated marker gene lists, or difficulty in leveraging the latent gene-gene interaction information. Inspired by large scale pretrained langurage models, we present a pretrained deep neural network-based model scBERT (single-cell Bidirectional Encoder Representations from Transformers) to overcome the above challenges. scBERT follows the state-of-the-art paradigm of pre-train and fine-tune in the deep learning field. In the first phase of scBERT, it obtains a general understanding of gene-gene interaction by being pre-trained on huge amounts of unlabeled scRNA-seq data. The pre-trained scBERT can then be used for the cell annotation task of unseen and user-specific scRNA-seq data through supervised fine-tuning. For more information, please refer to [https://www.biorxiv.org/content/10.1101/2021.12.05.471261v1](https://www.biorxiv.org/content/10.1101/2021.12.05.471261v1)
@@ -12,11 +12,11 @@ Reliable cell type annotation is a prerequisite for downstream analysis of singl
 # Data
 
 The data can be downloaded from these links. If you have any question, please contact fionafyang@tencent.com.
- 
+
 https://drive.weixin.qq.com/s?k=AJEAIQdfAAozQt5B8k
 https://drive.google.com/file/d/1fNZbKx6LPeoS0hbVYJFI8jlDlNctZxlU/view?usp=sharing
 
-# Checkpoint 
+# Checkpoint
 
 The pre-trained model checkpoint can be downloaded from this link. If you have any question, please contact fionafyang@tencent.com.
 
@@ -26,8 +26,8 @@ https://drive.weixin.qq.com/s?k=AJEAIQdfAAoUxhXE7r
 
 The test single-cell transcriptomics data file should be pre-processed by first revising gene symbols according to [NCBI Gene database](https://www.ncbi.nlm.nih.gov/gene) updated on Jan. 10, 2020, wherein unmatched genes and duplicated genes will be removed. Then the data should be normalized with the `sc.pp.normalize_total` and `sc.pp.log1p` method in `scanpy` (Python package), detailed in `preprocess.py`.
 
-You can download this repo and run the demo task on your computing machine within about 4 hours.  
- 
+You can download this repo and run the demo task on your computing machine within about 4 hours.
+
 - Fine-tune using pre-trained models
 ```
 python -m torch.distributed.launch finetune.py --data_path "fine-tune_data_path" --model_path "pretrained_model_path"
@@ -46,7 +46,7 @@ python predict.py --data_path "test_data_path" --model_path "finetuned_model_pat
 
 The detection of novel cell type can be done by thresholding the predicted probabilities. (Default threshold=0.5)
 ```
-python predict.py --data_path "test_data_path" --model_path "finetuned_model_path" --novel_type True --unassign_thres "custom_threshold"  
+python predict.py --data_path "test_data_path" --model_path "finetuned_model_path" --novel_type True --unassign_thres "custom_threshold"
 ```
 
 - Expected output
@@ -65,11 +65,11 @@ model = PerformerLM(
 )
 ```
 Hyperparameter|Description                            | Default | Arbitrary range
---------------|---------------------------------------| ------- | ----------------   
-num_tokens    |Number of bins in expression embedding |	7       |	[5, 7, 9] 
-dim           |Size of scBERT embedding vector        |	200     |	[100, 200]   
-heads         |Number of attention heads of Performer |	10      |	[8, 10, 20] 
-depth         |Number of Performer encoder layers     |	6       |	[4, 6, 8] 
+--------------|---------------------------------------| ------- | ----------------
+num_tokens    |Number of bins in expression embedding |	7       |	[5, 7, 9]
+dim           |Size of scBERT embedding vector        |	200     |	[100, 200]
+heads         |Number of attention heads of Performer |	10      |	[8, 10, 20]
+depth         |Number of Performer encoder layers     |	6       |	[4, 6, 8]
 
 
 # Time cost

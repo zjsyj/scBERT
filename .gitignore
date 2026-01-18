@@ -1,0 +1,55 @@
+# Byte-code files
+*.pyc
+__pycache__/
+*.pyd
+*.bin
+
+# Output of compiling extensions
+*.so
+*.whl
+
+# Distributions and packaging
+.Python
+build/
+dist/
+wheels/
+*.egg-info/
+.install_commons/
+pip-wheel-metadata/
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py.cover
+.hypothesis/
+.pytest_cache/
+
+# Editors and IDEs
+.vscode/        # VS Code
+.idea/          # PyCharm
+*.swp           # Vim
+*.sublime-workspace # Sublime Text
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+bin/
+lib/
+include/
+
+# Environment variables and sensitive files
+.env
+.flaskenv
+instance/
+local_settings.py*
+db.sqlite3
+db.sqlite3-journal
